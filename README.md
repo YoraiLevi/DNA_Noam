@@ -16,4 +16,4 @@ make
 
 ./fm_indexer -f sequence.fna -f sequence2.fasta
 
-./onlyhuman -f ~/Source/datasets/DNA/fake_tests/seq0.fasta -f ~/Source/datasets/DNA/fake_tests/seq1.fasta &> out.log
+./onlyhuman --chimp ~/Source/datasets/DNA/fake_tests/seq0.fasta --human ~/Source/datasets/DNA/fake_tests/seq1.fasta &> out.log
