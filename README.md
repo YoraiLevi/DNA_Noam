@@ -4,11 +4,13 @@ sudo apt install zlib1g-dev zlib1g
 
 git clone --recurse-submodules https://github.com/YoraiLevi/DNA_Noam.git
 
-mkdir build
+cd DNA_Noam/
 
-cd build
+mkdir Release
 
-cmake ..
+cd Release
+
+cmake -DCMAKE_BUILD_TYPE=ls ..
 
 make
 
