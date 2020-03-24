@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/submodules/seqan3/include/seqan3/io/**",
+                "${workspaceFolder}/submodules/seqan3/include/seqan3/core/**",
+                "${workspaceFolder}/submodules/seqan3/include/seqan3/argument_parser/**",
+                "${workspaceFolder}/submodules/seqan3/include/seqan3/io/sequence_file/**",
+                "${workspaceFolder}/submodules/seqan3/include/seqan3/search/fm_index/**",
+                "${workspaceFolder}/submodules/seqan3/submodules/cereal/include/cereal/**",
+                "${workspaceFolder}/submodules/seqan3/submodules/cereal/include/cereal/archives/"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "${default}",
+            "configurationProvider": "go2sh.cmake-integration"
+        }
+    ],
+    "version": 4
+}
