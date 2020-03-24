@@ -10,7 +10,7 @@ mkdir Release
 
 cd Release
 
-cmake -DCMAKE_BUILD_TYPE=ls ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 
 make
 
