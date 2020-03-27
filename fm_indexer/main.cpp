@@ -64,10 +64,23 @@ auto store_meta(const auto &ids)
 }
 auto store_fm(const auto &index)
 {
+    
     std::filesystem::path path = "index.bin";
-    std::ofstream os{path, std::ios::binary};
+    {std::ofstream os{path, std::ios::binary};
     cereal::BinaryOutputArchive oarchive{os};
     oarchive(index);
+    }
+        seqan3::fm_index<seqan3::dna5, seqan3::text_layout::collection> index2;
+    {
+        std::ifstream is{path, std::ios::binary};
+        cereal::BinaryInputArchive iarchive{is};
+        iarchive(index2);
+    }
+ 
+    if (index == index2)
+        std::cout << "The indices are identical!\n";
+    else
+        std::cout << "The indices differ!\n";
 }
 auto load_fm()
 {
