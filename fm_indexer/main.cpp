@@ -19,6 +19,8 @@ struct cmd_arguments
 {
     std::vector<std::filesystem::path> file_paths{};
     std::filesystem::path index_dir{};
+    bool verify{};
+    bool meta{};
 };
 void initialise_argument_parser(seqan3::argument_parser &parser, cmd_arguments &args)
 {
@@ -26,6 +28,8 @@ void initialise_argument_parser(seqan3::argument_parser &parser, cmd_arguments &
     parser.info.short_description = "FM-INDEXES fasta formatted files";
     parser.info.version = "0.0.1";
     parser.add_option(args.file_paths, 'f', "file", "fasta input file to index");
+    parser.add_flag(args.verify, 'v', "verify", "verifies that saved index is accurate");
+    parser.add_flag(args.meta, 'm', "meta-only", "save meta data only");
     // parser.add_option(args.index_dir, 'd', "dir", "The output directory for storing the files.",
                     //   seqan3::option_spec::REQUIRED, seqan3::output_directory_validator{});
     //.fa, .fasta, .fna, .ffn, .ffa, .frn.fa, .fasta, .fna, .ffn, .ffa, .frn
@@ -62,14 +66,17 @@ auto store_meta(const auto &ids)
     archive(CEREAL_NVP(ids));
     // archive(CEREAL_NVP(alphabet));
 }
-auto store_fm(const auto &index)
+auto store_fm(const auto &index,const bool is_verify)
 {
     
     std::filesystem::path path = "index.bin";
-    {std::ofstream os{path, std::ios::binary};
+    {
+    std::ofstream os{path, std::ios::binary};
     cereal::BinaryOutputArchive oarchive{os};
     oarchive(index);
     }
+    if(is_verify)
+    {
         seqan3::fm_index<seqan3::dna5, seqan3::text_layout::collection> index2;
     {
         std::ifstream is{path, std::ios::binary};
@@ -81,6 +88,8 @@ auto store_fm(const auto &index)
         std::cout << "The indices are identical!\n";
     else
         std::cout << "The indices differ!\n";
+    }
+    
 }
 auto load_fm()
 {
@@ -110,14 +119,18 @@ int main(int argc, char **argv)
             #ifndef NDEBUG
             seqan3::debug_stream <<"seq found:"<< id << std::endl;
             #endif
-            sequences.push_back(std::move(seq));
+            if(!args.meta){
+            sequences.push_back(std::move(seq));    
+            }
             ids.push_back(std::move(id));
         }
     }
 #ifndef NDEBUG
     seqan3::debug_stream << ids << std::endl;
 #endif
-    seqan3::fm_index index(sequences);
-    store_fm(index);
     store_meta(ids);
+    if(!args.meta){
+    seqan3::fm_index index(sequences);
+    store_fm(index,args.verify);    
+    }
 }
