@@ -9,7 +9,7 @@
 #include <seqan3/core/debug_stream.hpp>
 #include <seqan3/search/fm_index/all.hpp>
 
-
+//exclude //include //iterator //ostream save to file
 void print_cur(const seqan3::fm_index_cursor<auto> &cur, const std::vector<auto> &genomes)
 {
     seqan3::debug_stream
@@ -167,6 +167,7 @@ void program(const cmd_arguments &args)
     //     print_cur(cur,human_seq);
     // }
     // print_suffixes(human_cur,seqan3::get<seqan3::field::seq>(human_records[0]));
+    
 }
 int main(int argc, char **argv)
 {
