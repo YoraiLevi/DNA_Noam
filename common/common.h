@@ -10,6 +10,7 @@ using cursor_t = fm_index_t::cursor_type;
 using text_t = std::vector<seqan3::dna5_vector>;
 using id_type = seqan3::sequence_file_input<>::id_type;
 using sequence_type = seqan3::sequence_file_input<>::sequence_type;
+using size_type = fm_index_t::size_type;
 //funcs
 void print_cur(const cursor_t &cur, const text_t &texts);
 //f is callable of the structure: f(const custom_struct_t &defaults, const cursor_t &cur, const std::vector<auto> &texts)

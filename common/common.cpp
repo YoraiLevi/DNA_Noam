@@ -139,6 +139,8 @@ cmd_arguments parse_args(auto name,int argc, char **argv)
 }
 class breadth_cur{
   public:
+    using size_type = fm_index_t::size_type;
+    using cursor_type =  fm_index_t::cursor_type;
   breadth_cur(cursor_t root){
     queue.push(root);
   }
@@ -156,37 +158,84 @@ class breadth_cur{
     this->queue.pop();
     return cur;
   }
-  bool empty(){
-    return this->queue.empty();
+
+    size_type depth(){
+    return this->queue.front().query_length();
   }
-  private:  
-    std::queue<cursor_t> queue;
-};
-class minmax_breadth_cur : public breadth_cur{
-  public:
-  minmax_breadth_cur(cursor_t root,fm_index_t::size_type min=-1,fm_index_t::size_type max=-1): breadth_cur(root), _min{min}, _max{max}{}
-  cursor_t next(){
-    cursor_t cur(this->queue.front());
-    // temp_cur(cur);
-    cursor_t& temp_cur = this->queue.front();
-    if(temp_cur.extend_right()){
-            //if has children
-            do{
-                //appending node children
-                queue.push(temp_cur);
-            } while(temp_cur.cycle_back());   
-            }
-    this->queue.pop();
-    return cur;
+    bool fast_forward(size_type depth){
+    //Moves internal head to the first node in {depth} depth
+    size_type dept_atm(this->depth());
+    if(dept_atm>depth) return false;
+    while(!this->empty() && depth>this->depth()){
+        this->next();
+    }
+    return true;
   }
   bool empty(){
     return this->queue.empty();
   }
+  cursor_type front(){
+    return this->queue.front();
+  }
   private:  
     std::queue<cursor_t> queue;
-    fm_index_t::size_type _min;
-    fm_index_t::size_type _max;
 };
+// class depth_breadth_cur{
+//   public:
+//     using size_type = fm_index_t::size_type;
+//     using cursor_type =  fm_index_t::cursor_type;
+//     using value_type = std::tuple<size_type,cursor_type>;
+//   depth_breadth_cur(cursor_t root){
+//     this->queue.push(value_type(0,root));
+//   }
+//     depth_breadth_cur(value_type root){
+//         this->queue.push(root);
+//   }
+//   size_type depth(){
+//     return std::get<size_type>(this->queue.front());
+//   }
+//   bool fast_forward(size_type depth){
+//     //Moves internal head to the first node in {depth} depth
+//     size_type dept_atm(this->depth());
+//     if(dept_atm>depth) return false;
+//     while(!this->end() && depth>this->depth()){
+//         this->next();
+//     }
+//     return true;
+//   }
+// value_type next(){
+//     value_type cur_tuple{this->queue.front()}; //hopefully copy constructor;
+//     value_type& temp_tuple = this->queue.front(); //work reference;
+//     cursor_type& cur = std::get<cursor_type>(temp_tuple);
+//     size_type depth = std::get<size_type>(temp_tuple);
+//     if(cur.extend_right()){
+//         do{
+//             queue.push(value_type(depth,cur));
+//         }while(cur.cycle_back());
+//     }
+//     this->queue.pop();
+//     return cur_tuple;
+// }
+
+//   //   cursor_t cur(this->queue.front());
+//   //   // temp_cur(cur);
+//   //   cursor_t& temp_cur = this->queue.front();
+//   //   if(temp_cur.extend_right()){
+//   //           //if has children
+//   //           do{
+//   //               //appending node children
+//   //               queue.push(temp_cur);
+//   //           } while(temp_cur.cycle_back());   
+//   //           }
+//   //   this->queue.pop();
+//   //   return cur;
+//   // }
+//   bool end(){
+//     return this->queue.empty();
+//   }
+//   private:  
+//     std::queue<value_type> queue;
+// };
 // template <std::ranges::range text_t>
 fm_index_t::size_type has_node(const auto &idx,auto &label){
     cursor_t cur{idx.cursor()};

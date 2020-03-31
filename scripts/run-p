@@ -1,0 +1,46 @@
+THIS=$PWD
+BUILD=$1
+LEN=$2
+MIN=$3
+MAX=$4
+echo "Building"
+./make-build $1
+#if [001 = 1]
+#then
+	cd /tmp/
+	echo "Generating Sequences"
+	echo ">$LEN seq1" > seq1.fasta
+	cat /dev/urandom | tr -dc ATCGN | head -c $LEN >> seq1.fasta
+
+	echo ">$LEN seq2" > seq2.fasta
+	cat /dev/urandom | tr -dc ATCGN | head -c $LEN >> seq2.fasta
+	
+	echo ">$LEN seq3" > seq3.fasta
+	cat /dev/urandom | tr -dc ATCGN | head -c $LEN >> seq3.fasta
+
+	echo ">$LEN seq4" > seq4.fasta
+	cat /dev/urandom | tr -dc ATCGN | head -c $LEN >> seq4.fasta
+
+	echo "Indexing"
+	$THIS/../$BUILD/fm_indexer \
+	-f ./seq1.fasta
+	mv index.bin index.I.bin
+	$THIS/../$BUILD/fm_indexer \
+	-f ./seq2.fasta
+	mv index.bin index.II.bin
+	$THIS/../$BUILD/fm_indexer \
+	-f ./seq3.fasta
+	mv index.bin index.III.bin
+	$THIS/../$BUILD/fm_indexer \
+	-f ./seq4.fasta
+	mv index.bin index.IV.bin
+#fi
+echo "Performing Task"
+time $THIS/../$BUILD/common-breadth-parallel \
+-f /tmp/seq1.fasta \
+--human /tmp/index.I.bin \
+--dog /tmp/index.II.bin \
+--chimp /tmp/index.III.bin \
+--wolf /tmp/index.IV.bin \
+--min $MIN \
+--max $MAX

@@ -20,14 +20,18 @@
 #include <seqan3/core/detail/all.hpp>
 struct cmd_arguments
 {
+    //input files
     std::filesystem::path dog{};
     std::filesystem::path wolf{};
     std::filesystem::path chimp{};
     std::filesystem::path human{};
     std::vector<std::filesystem::path> file_paths{};
 
-    std::vector<std::filesystem::path> tile_paths{};
+    //search configuration
+    size_type min_depth{0};
+    size_type max_depth{0};
 
+    //output configuration
     std::filesystem::path outTSV{"out.tsv"};
 
 };
@@ -36,13 +40,17 @@ void initialise_argument_parser(seqan3::argument_parser &parser, cmd_arguments &
     parser.info.author = "Yorai Levi";
     parser.info.short_description = "FM-INDEXES fasta formatted files";
     parser.info.version = VERSION;
+
+    parser.add_option(args.max_depth, '\0', "max", "max depth to search");
+    parser.add_option(args.min_depth, '\0', "min", "min depth to search");
+
     parser.add_option(args.dog, 'd', "dog", "dog index");
     parser.add_option(args.wolf, 'w', "wolf", "wolf index");
     parser.add_option(args.chimp, 'c', "chimp", "chimp index");
     parser.add_option(args.human, 'u', "human", "human index");
 
     parser.add_option(args.file_paths, 'f', "file", "original fasta input files that were indexed");
-    parser.add_option(args.tile_paths, 't', "tile", "original fasta input files that were indexed");
+    // parser.add_option(args.tile_paths, 't', "tile", "original fasta input files that were indexed");
     parser.add_option(args.outTSV, '\0', "out-file-name", "name of file to output, as for this version please include .tsv as a file extension");
 }
 
@@ -62,7 +70,7 @@ int main(int argc, char **argv)
     std::vector<id_type> ids{};
     load_records(args.file_paths,texts,ids,false);
 
-    std::cout << " Done." << std::endl;
+    std::cout << "Done." << std::endl;
 
     std::cout << "Prepearing stream for writing...";
     
@@ -71,17 +79,20 @@ int main(int argc, char **argv)
     os.open(args.outTSV);
     deos << "Human Count" <<"\t"<< "Dog Count"<<"\t"<< "Path"<< std::endl;
     
-    std::cout << " Done." << std::endl;
+    std::cout << "Done." << std::endl;
 
 
     std::cout << "Processing..."<<std::endl;
     {   
         fm_index_t::size_type total,count;
         breadth_cur queue(human_idx.cursor());
+        //fast forward to desired min depth;
+        if(args.min_depth>0)
+            queue.fast_forward(args.min_depth);
 
         std::chrono::time_point<std::chrono::system_clock> past = std::chrono::system_clock::now();
         #pragma omp parallel
-        while(!queue.empty()){
+        while( (args.max_depth==0 || queue.depth()<args.max_depth) && !queue.empty()){
         cursor_t cur;
         #pragma omp critical
         {
@@ -89,9 +100,16 @@ int main(int argc, char **argv)
             count++;
            cur=queue.next();
         }
+
            // print_cur(cur,texts);
            auto label = cur.path_label(texts);
+        #ifndef NDEBUG
+        seqan3::debug_stream << \
+        "queue depth:" << queue.depth() << "\t\t label:"<< queue.front().path_label(texts) << "\n" <<
+        "depth:" << cur.query_length()/*queue.depth()*/ <<"\t\t label:" << label << "\n" << std::endl;
+        #endif
         // #pragma omp single
+        
         {
             std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
             auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now-past);
@@ -111,6 +129,7 @@ int main(int argc, char **argv)
             if(!has_node(chimp_idx,label) && !has_node(wolf_idx,label)){
                 auto dog_count{has_node(dog_idx,label)};
                 if(dog_count){
+                    #pragma omp critical
                     deos << cur.count()<< "\t" << dog_count <<"\t" << label<< std::endl;   
                 }    
             }
@@ -119,10 +138,10 @@ int main(int argc, char **argv)
            
         }
     }        
-    std::cout << " Done." << std::endl;
+    std::cout << "Done." << std::endl;
     std::cout << "Closing stream...";
     os.close();
-    std::cout << " Done." << std::endl;
+    std::cout << "Done." << std::endl;
 
-    std::cout << " All Complete. GZ GZ" << std::endl;
+    std::cout << "All Complete. GZ GZ" << std::endl;
 }
