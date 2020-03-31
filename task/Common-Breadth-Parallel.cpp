@@ -80,9 +80,10 @@ int main(int argc, char **argv)
         breadth_cur queue(human_idx.cursor());
 
         std::chrono::time_point<std::chrono::system_clock> past = std::chrono::system_clock::now();
-        
+        #pragma omp parallel
         while(!queue.empty()){
         cursor_t cur;
+        #pragma omp critical
         {
             total++;
             count++;

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.4)
 
 project (seqan3_DNA CXX)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -pthread")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -Wall -Wextra -pthread")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG -pthread -fopenmp ")
 
 find_package (SeqAn3 3.0.0 REQUIRED HINTS "${CMAKE_SOURCE_DIR}/submodules/seqan3/build_system")
 
@@ -29,6 +29,10 @@ target_link_libraries (onlyhuman seqan3::seqan3)
 add_executable (common-breadth-serial task/Common-Breadth-Serial.cpp)
 target_link_libraries (common-breadth-serial seqan3::seqan3)
 target_include_directories(common-breadth-serial PRIVATE common)
+
+add_executable (common-breadth-parallel task/Common-Breadth-Parallel.cpp)
+target_link_libraries (common-breadth-parallel seqan3::seqan3)
+target_include_directories(common-breadth-parallel PRIVATE common)
 
 add_executable (temp task/temporaries.cpp)
 target_link_libraries (temp seqan3::seqan3)
