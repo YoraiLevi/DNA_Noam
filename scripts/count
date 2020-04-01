@@ -1,0 +1,17 @@
+THIS=$PWD
+BUILD=$1
+LEN=$2
+MIN=$3
+MAX=$4
+echo "Building"
+./make-build $1 count
+echo "Performing Task"
+time $THIS/../$BUILD/count \
+-f /tmp/seq1.fasta \
+-x /tmp/index.I.bin \
+-i /tmp/index.I.bin \
+-i /tmp/index.II.bin \
+-i /tmp/index.III.bin \
+-i /tmp/index.IV.bin \
+--min $MIN \
+--max $MAX
