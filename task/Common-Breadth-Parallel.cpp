@@ -126,9 +126,10 @@ int main(int argc, char **argv)
             
         }
            {
-            if(!has_node(chimp_idx,label) && !has_node(wolf_idx,label)){
-                auto dog_count{has_node(dog_idx,label)};
-                if(dog_count){
+            if(!chimp_idx.cursor().extend_right(label) && !wolf_idx.cursor().extend_right(label)){
+                auto dog_cur = dog_idx.cursor();
+                if(dog_cur.extend_right(label)){
+                    auto dog_count{dog_cur.count()};
                     #pragma omp critical
                     deos << cur.count()<< "\t" << dog_count <<"\t" << label<< std::endl;   
                 }    
