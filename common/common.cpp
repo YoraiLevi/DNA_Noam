@@ -5,6 +5,8 @@
 #include <seqan3/io/sequence_file/input.hpp> // for sequence_file_input
 #include <seqan3/alphabet/nucleotide/dna5.hpp>
 #include <seqan3/search/fm_index/all.hpp>
+#include <seqan3/range/views/char_to.hpp>
+
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
@@ -242,4 +244,8 @@ fm_index_t::size_type has_node(const auto &idx,auto &label){
     if(cur.extend_right(label))
         return cur.count();
     return 0;
+}
+
+sequence_type str_to_dna5(const std::string &str){
+    return str | seqan3::views::char_to<seqan3::dna5>;
 }
